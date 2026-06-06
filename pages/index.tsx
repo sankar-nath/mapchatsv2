@@ -12,6 +12,7 @@ interface SavedChat {
   messages: Message[];
   mapContext: string;
   district?: string;
+  taluk?: string;
 }
 
 export default function Home() {
@@ -23,6 +24,7 @@ export default function Home() {
   const [savedChats, setSavedChats] = useState<SavedChat[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedDistricts, setExpandedDistricts] = useState<Record<string, boolean>>({});
+  const [expandedTaluks, setExpandedTaluks] = useState<Record<string, boolean>>({});
 
   // Load chats from localStorage on mount
   useEffect(() => {
@@ -75,6 +77,7 @@ Out of${totalUnits} total units, ${soldUnits} have already been snapped up by bu
 
 Located in the prime territory of ${village}, ${taluk}, ${district}. Do you have any questions"` 
             }],
+            taluk: taluk,
             mapContext: `LOCATION: ${locationQuery}\n${details}`,
             district: district
           };
@@ -97,10 +100,13 @@ Located in the prime territory of ${village}, ${taluk}, ${district}. Do you have
   const groupedChats = useMemo(() => {
     return savedChats.reduce((acc, chat) => {
       const district = chat.district || "My Saved Chats";
-      if (!acc[district]) acc[district] = [];
-      acc[district].push(chat);
+      const taluk = chat.taluk || "General";
+      
+      if (!acc[district]) acc[district] = {};
+      if (!acc[district][taluk]) acc[district][taluk] = [];
+      acc[district][taluk].push(chat);
       return acc;
-    }, {} as Record<string, SavedChat[]>);
+    }, {} as Record<string, Record<string, SavedChat[]>>);
   }, [savedChats]);
 
   const loadChat = (id: string) => {
@@ -120,6 +126,14 @@ Located in the prime territory of ${village}, ${taluk}, ${district}. Do you have
     setExpandedDistricts(prev => ({
       ...prev,
       [district]: !prev[district]
+    }));
+  };
+
+  const toggleTaluk = (district: string, taluk: string) => {
+    const key = `${district}-${taluk}`;
+    setExpandedTaluks(prev => ({
+      ...prev,
+      [key]: !prev[key]
     }));
   };
 
@@ -212,7 +226,7 @@ Located in the prime territory of ${village}, ${taluk}, ${district}. Do you have
     const firstUserMsg = messages.find(m => m.role === 'user')?.content.slice(0, 30);
     const title = firstUserMsg ? `${firstUserMsg}...` : `Map Chat ${savedChats.length + 1}`;
     
-    setSavedChats([...savedChats, { id, title, messages, mapContext, district: "My Saved Chats" }]);
+    setSavedChats([...savedChats, { id, title, messages, mapContext, district: "My Saved Chats", taluk: "General" }]);
   };
 
   useEffect(() => {
@@ -269,10 +283,10 @@ return (
         {savedChats.length === 0 ? (
           <p className="text-sm text-gray-500">No saved chats yet</p>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-2">
             {Object.entries(groupedChats)
               .sort(([a], [b]) => a.localeCompare(b))
-              .map(([district, chats]) => (
+              .map(([district, taluks]) => (
                 <div key={district} className="mb-1">
                   <button
                     onClick={() => toggleDistrict(district)}
@@ -280,7 +294,9 @@ return (
                   >
                     <span className="truncate">{district}</span>
                     <span className="flex items-center gap-1.5 tabular-nums">
-                      <span className="bg-slate-200 text-slate-600 px-1.5 rounded-md text-[10px]">{chats.length}</span>
+                      <span className="bg-slate-200 text-slate-600 px-1.5 rounded-md text-[10px]">
+                        {Object.values(taluks).reduce((sum, c) => sum + c.length, 0)}
+                      </span>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className={`h-3 w-3 transition-transform duration-200 ${expandedDistricts[district] ? 'rotate-180' : ''}`}
@@ -293,30 +309,58 @@ return (
                     </span>
                   </button>
                   {expandedDistricts[district] && (
-                    <ul className="mt-1 space-y-0.5 ml-2 border-l border-slate-100">
-                      {chats.map((chat) => (
-                        <li key={chat.id} className="flex items-center group pl-2">
-                          <button
-                            className="flex-1 text-left hover:bg-slate-100 p-1.5 rounded truncate text-xs text-slate-500 hover:text-slate-900 transition-colors"
-                            onClick={() => {
-                              loadChat(chat.id);
-                              setSidebarOpen(false);
-                            }}
-                          >
-                            {chat.title}
-                          </button>
-                          <button
-                            onClick={(e) => deleteChat(chat.id, e)}
-                            className="p-1 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                            title="Delete"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="mt-1 ml-2 space-y-1 border-l border-slate-100">
+                      {Object.entries(taluks)
+                        .sort(([a], [b]) => a.localeCompare(b))
+                        .map(([taluk, chats]) => (
+                          <div key={taluk} className="ml-2">
+                            <button
+                              onClick={() => toggleTaluk(district, taluk)}
+                              className="flex items-center justify-between w-full text-left p-1.5 hover:bg-slate-50 rounded transition-colors text-[10px] font-semibold text-slate-500 bg-slate-50/30"
+                            >
+                              <span className="truncate">{taluk}</span>
+                              <span className="flex items-center gap-1 tabular-nums">
+                                <span className="text-slate-400">{chats.length}</span>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className={`h-2.5 w-2.5 transition-transform duration-200 ${expandedTaluks[`${district}-${taluk}`] ? 'rotate-180' : ''}`}
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </span>
+                            </button>
+                            {expandedTaluks[`${district}-${taluk}`] && (
+                              <ul className="mt-0.5 space-y-0.5 ml-2 border-l border-slate-50">
+                                {chats.map((chat) => (
+                                  <li key={chat.id} className="flex items-center group pl-2">
+                                    <button
+                                      className="flex-1 text-left hover:bg-slate-100 p-1 rounded truncate text-[11px] text-slate-500 hover:text-slate-900 transition-colors"
+                                      onClick={() => {
+                                        loadChat(chat.id);
+                                        setSidebarOpen(false);
+                                      }}
+                                    >
+                                      {chat.title}
+                                    </button>
+                                    <button
+                                      onClick={(e) => deleteChat(chat.id, e)}
+                                      className="p-1 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                      title="Delete"
+                                    >
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        ))}
+                    </div>
                   )}
                 </div>
               ))}
