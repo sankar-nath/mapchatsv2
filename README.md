@@ -39,12 +39,12 @@ git clone https://github.com/sankar-nath/mapchats
 npm i
 ```
 
-**3. Provide OpenAI API Key**
+**3. Provide Deepseek API Key**
 
-Create a .env.local file in the root of the repo with your OpenAI API Key:
+Create a .env.local file in the root of the repo with your Deepseek API Key:
 
 ```bash
-OPENAI_API_KEY=<YOUR_KEY>
+DEEPSEEK_API_KEY=<YOUR_KEY>
 ```
 
 **4. Run App**
