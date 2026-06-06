@@ -2,30 +2,28 @@
 
 I forked this project from: [Chatbot UI Lite](https://github.com/mckaywrigley/chatbot-ui-lite)
 
-A chatbot that lets you chat with maps
+A specialized AI assistant for Kerala Real Estate, featuring interactive maps, project tracking, and a charismatic broker persona.
 
 See a [demo](https://mapchats.com)
 
-
 ## Features
 
-Chat with Maps
+- **Project Database**: Automatically loads and parses real estate data from `project_list.csv`.
+- **District Grouping**: Sidebar automatically categorizes projects by district with collapsible navigation.
+- **Charismatic AI Broker**: The assistant adopts a "facts-and-figures" broker persona, sliding glossy brochures and quoting RERA details, unit counts, and completion dates.
+- **Advanced Map Pane**:
+    - **Smart Geocoding**: Optimized search using `Village + Taluk` for high hit rates in Kerala.
+    - **Map Lock**: Toggle to prevent accidental panning/zooming.
+    - **Drawing Mode**: Sketch directly on the map for site planning or annotation.
+    - **Context Awareness**: The map automatically syncs with whichever project is selected in the sidebar.
+- **Fixed Frame Layout**: Independent scrolling for the sidebar and chat keeps the map visible at all times.
 
-It has everything you need to hit the ground running.
+## Technical Architecture (for Future Me)
 
-Modify the chat interface in `components/Chat`.
-
-Tweak the system prompt in `utils/index.ts`.
-
-Tweak the assistant prompt in `pages/index.tsx`.
-
-Tweak the Maps interface in `components/MapPane.tsx`
-
-//gemini write code
-
-
-## Deploy
-
+- **Data Layer**: Parsing logic is in `pages/index.tsx`. It uses a regex-based CSV splitter to handle project names containing commas.
+- **Persona Management**: The "Broker" prompt is injected during the CSV-to-Chat object conversion in the main `useEffect` of `Home`.
+- **Map Component**: `components/MapPane.tsx` handles OpenStreetMap integration. It features a custom SVG overlay for the drawing mode and coordinate projection logic.
+- **Layout**: Uses Tailwind's `h-[calc(100vh-64px)]` on the main wrapper to ensure the app fits the screen without page-level scrolling.
 
 ## Running Locally
 

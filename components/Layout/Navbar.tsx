@@ -10,9 +10,9 @@ export const Navbar: FC<NavbarProps> = ({ onOpenSidebar }) => {
       <div className="font-bold text-3xl flex items-center">
         <a
           className="ml-2 hover:opacity-50"
-          href="https://vidyatube.com"
+          href=""
         >
-          AI Map Chat
+          Chat with Properties in Kerala
         </a>
       </div>
 

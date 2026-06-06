@@ -5,18 +5,19 @@ export const OpenAIStream = async (messages: Message[]) => {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
 
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch("https://api.deepseek.com/chat/completions", {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`
     },
     method: "POST",
     body: JSON.stringify({
-      model: "gpt-4.1-nano",
+      model: "deepseek-chat",
       messages: [
         {
           role: "system",
-          content: `You are MapChat, If the user asks anything about where they are, nearby places, or location-specific info,use the provided Map Context below as ground truth.If Map Context is present, answer directly from it (city/area/state/country and lat/lng if useful).`
+          content: `You have to answer queries based on the location. always provide an answer. -- Begin with action, reaction, or dialogue tied to {{user}}’s last input. 
+-End with tension, curiosity, or open dialogue for {{user}}’s next move. Offer options which keep edging the plot`
         },
         ...messages
       ],
@@ -27,7 +28,11 @@ export const OpenAIStream = async (messages: Message[]) => {
   });
 
   if (res.status !== 200) {
-    throw new Error("OpenAI API returned an error");
+    const errorText = await res.text();
+    console.error("DeepSeek API Error:", errorText);
+    throw new Error(
+      `DeepSeek API returned an error (Status ${res.status}): ${errorText}`
+    );
   }
 
   const stream = new ReadableStream({
@@ -43,9 +48,11 @@ export const OpenAIStream = async (messages: Message[]) => {
 
           try {
             const json = JSON.parse(data);
-            const text = json.choices[0].delta.content;
-            const queue = encoder.encode(text);
-            controller.enqueue(queue);
+            const text = json.choices[0].delta?.content || "";
+            if (text) {
+              const queue = encoder.encode(text);
+              controller.enqueue(queue);
+            }
           } catch (e) {
             controller.error(e);
           }

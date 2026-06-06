@@ -69,11 +69,11 @@ export default function Home() {
             title: project,
             messages: [{ 
               role: "assistant", 
-              content: `${project} is a ${type} from ${promoter}. We started building on ${startDate}v, and the finish line is set for ${completionDate}. It's fully RERA-certified-v${reraNo} 
+              content: `${project} is a ${type} from ${promoter}. We started building on ${startDate}, and the finish line is set for ${completionDate}. It's fully RERA-certified-${reraNo} 
 
-Out ofv${totalUnits} total units, ${soldUnits}vhave already been snapped up by savvy buyers. The project is currently **${status}**. 
+Out of${totalUnits} total units, ${soldUnits} have already been snapped up by buyers. The project is currently ${status}. 
 
-Located in the prime territory of **${village}**, **${taluk}**, **${district}**. Do you have any questions"` 
+Located in the prime territory of ${village}, ${taluk}, ${district}. Do you have any questions"` 
             }],
             mapContext: `LOCATION: ${locationQuery}\n${details}`,
             district: district
@@ -231,7 +231,7 @@ Located in the prime territory of **${village}**, **${taluk}**, **${district}**.
 return (
   <>
     <Head>
-      <title>AI Map Chat v2</title>
+      <title>Chat with Properties in Kerala</title>
       <meta name="description" content="Chat with Maps using AI" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="icon" href="/favicon.ico" />
@@ -325,10 +325,10 @@ return (
       </div>
 
       {/* Main content */}
-      <main className="flex-1 min-w-0 overflow-y-auto">
-        <div className="flex flex-col lg:flex-row flex-1 mx-auto mt-4 sm:mt-12 gap-6 px-4 sm:px-8">
+        <main className="flex-1 min-w-0 overflow-hidden flex flex-col">
+        <div className="flex flex-col lg:flex-row flex-1 mx-auto py-4 sm:py-12 gap-6 px-4 sm:px-8 w-full overflow-hidden">
           {/* Map */}
-          <div className="flex-[2]">
+          <div className="flex-[2] h-[40vh] lg:h-full min-h-[300px]">
             <MapPane
               onContextChange={setMapContext}
               initialContext={mapContext}
@@ -336,7 +336,7 @@ return (
           </div>
 
           {/* Chat */}
-          <div className="flex-[1] flex flex-col">
+          <div className="flex-[1] flex flex-col overflow-y-auto min-h-0 pr-2">
             <Chat
               messages={messages}
               loading={loading}
