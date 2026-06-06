@@ -19,6 +19,11 @@ Tweak the system prompt in `utils/index.ts`.
 
 Tweak the assistant prompt in `pages/index.tsx`.
 
+Tweak the Maps interface in `components/MapPane.tsx`
+
+//gemini write code
+
+
 ## Deploy
 
 

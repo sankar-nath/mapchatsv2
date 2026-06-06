@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       `q=${encodeURIComponent(q)}`;
 
     const r = await fetch(url, {
-      headers: { "User-Agent": "MapChat Demo (you@example.com)" }
+      headers: { "User-Agent": "MapChatApp/1.0 (contact: zanky9@gmail.com)" }
     });
 
     if (!r.ok) return res.status(r.status).json({ error: await r.text() });
