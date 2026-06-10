@@ -41,6 +41,7 @@ export default function MapPane({ onContextChange, initialContext }: MapPaneProp
   const [isSearching, setIsSearching] = useState(false);
   
   // Drawing state
+  const [viewMode, setViewMode] = useState<"map" | "3d">("map");
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const [paths, setPaths] = useState<Array<{lat: number, lng: number}[]>>([]);
   const [currentPath, setCurrentPath] = useState<{lat: number, lng: number}[] | null>(null);
@@ -63,6 +64,7 @@ export default function MapPane({ onContextChange, initialContext }: MapPaneProp
       setLat(data.lat);
       setLng(data.lon);
       setZoom(17);
+      setViewMode("map"); // Switch back to map to show search result
       setStatus(data.name);
       setInfo({
         name: data.name,
@@ -255,6 +257,8 @@ return (
   <div ref={containerRef} className="flex flex-col rounded-2xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 transition-shadow duration-300">
     {/* Map */}
     <div className="relative w-full h-[450px] overflow-hidden">
+      {viewMode === "map" ? (
+        <>
       {/* Compass / Reset North */}
       <button
         onClick={() => setRotation(0)}
@@ -339,6 +343,17 @@ return (
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
       />
       </div>
+        </>
+      ) : (
+        <iframe
+          id="viewer"
+          title="3D Viewer"
+          src="https://superspl.at/s?id=191b75ac"
+          className="w-full h-full border-0"
+          allow="fullscreen; xr-spatial-tracking"
+          loading="lazy"
+        />
+      )}
 
       {/* Status toast - Absolute positioned to prevent layout jumps */}
       {status && (
@@ -349,7 +364,18 @@ return (
     </div>
 
     {/* Controls: Lock + Search */}
-    <div className="flex items-center gap-3 p-4 border-t border-slate-100 bg-white">
+    <div className="flex flex-wrap items-center gap-3 p-4 border-t border-slate-100 bg-white">
+      <button
+        type="button"
+        onClick={() => setViewMode(v => v === "map" ? "3d" : "map")}
+        className={`px-3 py-2 rounded-xl shadow-sm border text-[10px] font-bold transition-all duration-200 ${
+          viewMode === "3d" ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-700 hover:bg-slate-50 border-slate-200"
+        }`}
+        title={viewMode === "map" ? "Switch to 3D View" : "Switch to Map"}
+      >
+        {viewMode === "map" ? "🗺️ MAP" : "🧊 3D"}
+      </button>
+
       <button
         type="button"
         onClick={() => setLocked(v => !v)}
@@ -366,6 +392,7 @@ return (
         <button
           type="button"
           onClick={() => setRotation(r => r - 15)}
+          disabled={viewMode === "3d"}
           className="p-1.5 hover:bg-white rounded-lg transition-all text-slate-500"
           title="Rotate Left"
         >
@@ -376,6 +403,7 @@ return (
         <button
           type="button"
           onClick={() => setRotation(r => r + 15)}
+          disabled={viewMode === "3d"}
           className="p-1.5 hover:bg-white rounded-lg transition-all text-slate-500"
           title="Rotate Right"
         >
@@ -389,9 +417,10 @@ return (
         <button
           type="button"
           onClick={() => setIsDrawingMode(!isDrawingMode)}
+          disabled={viewMode === "3d"}
           className={`p-2 rounded-lg transition-all ${
             isDrawingMode ? "bg-blue-600 text-white shadow-inner" : "text-slate-500 hover:bg-white"
-          }`}
+          } ${viewMode === "3d" ? "opacity-30 cursor-not-allowed" : ""}`}
           title="Draw Mode"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -490,6 +519,7 @@ return (
         </svg>
       </button>
     </div>
+    
 
     {/* Info textbox */}
     <div className="p-4 border-t border-slate-100 bg-white">
