@@ -62,6 +62,8 @@ export default function Home() {
           const district = cols[10] || "";
           const village = cols[11] || "";
           const taluk = cols[12] || "";
+          const lat = cols[13] || "8.57322";
+          const lng = cols[14] || "76.87721";
 
           const locationQuery = `${village}, ${taluk}, Kerala`;
           const details = `Project: ${project}\nPromoter: ${promoter}\nType: ${type}\nStarted: ${startDate}\nTarget Completion: ${completionDate}\nRERA: ${reraNo}\nUnits: ${totalUnits} Total, ${soldUnits} Sold\nStatus: ${status}\nLocation: ${village}, ${taluk}, ${district}`;
@@ -78,7 +80,7 @@ Out of${totalUnits} total units, ${soldUnits} have already been snapped up by bu
 Located in the prime territory of ${village}, ${taluk}, ${district}. Do you have any questions"` 
             }],
             taluk: taluk,
-            mapContext: `LOCATION: ${locationQuery}\n${details}`,
+            mapContext: `LOCATION: ${locationQuery}\nLat ${lat}, Lng ${lng}\n${details}`,
             district: district
           };
         });
@@ -245,7 +247,7 @@ Located in the prime territory of ${village}, ${taluk}, ${district}. Do you have
 return (
   <>
     <Head>
-      <title>Chat with Properties in Kerala</title>
+      <title>MapChats</title>
       <meta name="description" content="Chat with Maps using AI" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="icon" href="/favicon.ico" />
@@ -253,7 +255,7 @@ return (
 
     <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
 
-    <div className="flex sm:h-[calc(100vh-64px)] overflow-hidden">
+    <div className="flex h-[calc(100vh-50px)] sm:h-[calc(100vh-60px)] overflow-hidden">
       {/* Mobile overlay when sidebar is open */}
       {sidebarOpen && (
         <div
@@ -369,10 +371,10 @@ return (
       </div>
 
       {/* Main content */}
-        <main className="flex-1 min-w-0 overflow-hidden flex flex-col">
-        <div className="flex flex-col lg:flex-row flex-1 mx-auto py-4 sm:py-12 gap-6 px-4 sm:px-8 w-full overflow-hidden">
+      <main className="flex-1 min-w-0 overflow-hidden flex flex-col h-full">
+        <div className="flex flex-col lg:flex-row flex-1 mx-auto py-2 sm:py-6 gap-4 sm:gap-6 px-2 sm:px-8 w-full h-full overflow-hidden">
           {/* Map */}
-          <div className="flex-[2] h-[40vh] lg:h-full min-h-[300px]">
+          <div className="flex-none h-[45vh] lg:flex-[2] lg:h-full lg:min-h-0">
             <MapPane
               onContextChange={setMapContext}
               initialContext={mapContext}
@@ -380,7 +382,7 @@ return (
           </div>
 
           {/* Chat */}
-          <div className="flex-[1] flex flex-col overflow-y-auto min-h-0 pr-2">
+          <div className="flex-1 flex flex-col min-h-0 pr-2 overflow-y-auto">
             <Chat
               messages={messages}
               loading={loading}

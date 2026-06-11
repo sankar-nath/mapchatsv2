@@ -12,7 +12,7 @@ export const Navbar: FC<NavbarProps> = ({ onOpenSidebar }) => {
           className="ml-2 hover:opacity-50"
           href=""
         >
-          Chat with Properties in Kerala
+          Chat with Maps
         </a>
       </div>
 
