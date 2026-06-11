@@ -19,11 +19,13 @@ interface MapPaneProps {
 }
 
 const MapboxExample = ({ initialContext, onContextChange }: MapPaneProps) => {
-  const mapContainerRef = useRef();
-  const mapRef = useRef();
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
   const [view, setView] = useState('map');
 
   useEffect(() => {
+    if (!mapContainerRef.current) return;
+
     let lat = 8.57322;
     let lng = 76.87721;
 
@@ -41,9 +43,9 @@ const MapboxExample = ({ initialContext, onContextChange }: MapPaneProps) => {
     console.log('lat and long are:', lat, lng);
     console.log('mapcontext or initialcontext is', initialContext);
 
-    mapRef.current = new mapboxgl.Map({
-      accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
-      container: 'map',
+    const map = new mapboxgl.Map({
+      accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '',
+      container: mapContainerRef.current,
       boxZoom: true,
       style: 'mapbox://styles/mapbox/standard',
       config: {
@@ -60,16 +62,17 @@ const MapboxExample = ({ initialContext, onContextChange }: MapPaneProps) => {
       bearing: 172.5,
       antialias: true
     });
+    mapRef.current = map;
 
-    mapRef.current.on('style.load', () => {
-      mapRef.current.addLayer({
+    map.on('style.load', () => {
+      map.addLayer({
         id: 'custom-threebox-model',
         type: 'custom',
         renderingMode: '3d',
         onAdd: function () {
           window.tb = new Threebox(
-            mapRef.current,
-            mapRef.current.getCanvas().getContext('webgl'),
+            map,
+            map.getCanvas().getContext('webgl'),
             { defaultLights: true }
           );
           const scale = 5.2;
