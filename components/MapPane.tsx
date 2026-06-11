@@ -84,7 +84,7 @@ const MapboxExample = ({ initialContext, onContextChange }: MapPaneProps) => {
             rotation: { x: 90, y: -90, z: 0 }
           };
 
-          window.tb.loadObj(options, (model) => {
+          window.tb.loadObj(options, (model: any) => {
             model.setCoords([lng, lat]);
             model.setRotation({ x: 0, y: 0, z: 241 });
             window.tb.add(model);
